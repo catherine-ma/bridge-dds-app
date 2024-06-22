@@ -1,0 +1,13 @@
+client/.next/
+client/node_modules/
+client/.eslintrc.json
+client/next-env.d.ts
+client/next.config.mjs
+client/package-lock.json
+client/postcss.config.mjs
+client/tailwind.config.ts
+client/tsconfig.json
+
+server/dist/
+server/node_modules/
+server/package-lock.json
