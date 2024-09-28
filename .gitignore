@@ -11,3 +11,4 @@ client/tsconfig.json
 server/dist/
 server/node_modules/
 server/package-lock.json
+server/.env
