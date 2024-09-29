@@ -1,0 +1,14 @@
+There are a number of simple examples for individual DDS functions.
+
+You can build all examples using `make examples`. Alternative individual
+example using `make examples/CalcDDtable`. Then examples can be run with
+`./examples/CalcDDTable`
+
+Standard alone examples can be compiled and run with
+```
+mkdir build
+cd build
+cmake ..
+make
+./CalcDDTable
+```
