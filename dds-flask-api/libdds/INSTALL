@@ -1,0 +1,164 @@
+General
+=======
+
+These are all command-line instructions.  If you want to compile
+the code from an integrated development environment, you probably
+know what you're doing and you'll figure it out :-).
+
+The first step is to compile the library.
+
+If you have trouble, read the CMakeLists.txt.  The compiler warning
+levels are set rather high, and they are set to fail even on
+warnings. You can modify warning flags with DDS_GCC_WARN or DDS_MSVC_WARN
+configuration options.
+
+If you want, the optional next step is to test the library.
+
+Dependecies:
+* You need cmake (>= 3.12)
+* Compiler with C++ 11 support
+
+Optional dependencies:
+* Boost thread
+* Compiler supporting OpenMP
+* Compiler with C++ 17 support (cmake argument -DCMAKE_CXX_STANDARD=17 to use)
+* Intel Thread Building Blocks library
+
+
+Once you've tested the source, you'll need the library file, the
+dll.h and dds_export.h include file from the include directory, and
+possibly other files such as dll.lib, depending on the exact system.
+You don't need include/portab.h, although you're welcome to use it. The
+library files needed depending on build configuration:
+
+Microsoft Visual C++: libdds.dll, libdds.lib or libdds.lib
+mingw and cygwin: libdds.dll or libdds.a
+Mac and linux: libdds.so* or libdds.a
+
+System level installation can be done with install target. You can select your
+preferred directory by modifying CMAKE_INSTALL_PREFIX configuration variable.
+
+General instructions
+====================
+
+1. Make a new subdirectory and move to it (e.g. `mkdir build && cd build`).
+
+2. Configure the project (e.g. `cmake ..` or `cmake -G Xcode ..`)
+
+3. You can modify configuration using CMAKE GUI (e.g. `ccmake ..`)
+
+4. Compile the project (e.g. `make`)
+
+5. Optionally run tests (e.g. `make check`)
+
+6. Install files (e.g. `make install`)
+
+You can also install some of components. Example is minimum install to be able
+to compile and run applications using libdds.
+```
+cmake -DCMAKE_INSTALL_COMPONENT=Runtime -P cmake_install.cmake
+cmake -DCMAKE_INSTALL_COMPONENT=Development -P cmake_install.cmake
+```
+
+Multi-threading
+===============
+
+As of v2.9.0 this works differently.  It is possible to have
+multiple threading systems in the same library.  There is a new
+DLL function called SetThreading() to select the one you want,
+in case there is more than one.  If the DLL is compiled only
+single-threaded, that is what you'll get.  If there are multiple
+options, the DLL will default to the multi-threaded one with the
+lowest number (among those compiled in, of course).  The numbers
+can be found in ../include/dll.h.
+
+It is NOT recommended to use STLIMPL and PPLIMPL as they are today.
+You cannot control the number of threads that they will want, nor
+the memory that they will consume.  But maybe some day...
+
+The others are very equivalent in terms of speed, but you might as
+well use STL if you have it, as this is probably the most portable.
+
+If you don't have a C++17 compiler, you will not get STLIMPL or
+PPLIMPL.
+
+The *IMPL versions let the system handle threads autonomously
+(up to the number of threads set by the user), whereas the others 
+are handled by DDS internally.  The *IMPL version are similar in
+speed, except if there is some near-duplication in the input hands
+(say, instances of the same distribution played in the same 
+denomination from different side).  The non-IMPL version handle
+this more efficiently.
+
+
+Testing
+=======
+
+Build system offers targets `check`,  `check_master` and `check_slow`. These
+targets can be triggered to run predefined manual test suit.
+
+Running tests manually
+----------------------
+
+You can compile the dtest program (e.g. `make dtest`).
+This program tests five main modes of DDS:
+
+* solve, the solution of a hand for a given declarer and strain.
+* calc, the solution of a hand for all 4 declarers * 5 strains.
+* play, the checking of play vs. double-dummy place.
+* par, the par calculation.
+* dealerpar, the dealer par calculation.
+
+The program can use a number of pre-defined input files in the
+../hands directory.
+
+You should now have a program called "dtest" or "dtest.exe".  Let us 
+assume dtest.exe.  Let us also assume that your system is set up
+in such a way that your path does not include the current working
+directory.
+
+You can invoke the program as
+
+./test/dtest.exe
+
+which should just give a brief usage message.  If that works, then
+you can invoke the program like this, for example:
+
+./test/dtest.exe -f ../hands/list100.txt -s solve -n 4 -m 1000
+
+The number of threads is optional.  If it is not supplied, DDS
+figures one out itself.  If it is supplied, then it is passed to
+SetMaxThreads().  You can also use SetResources() instead of
+SetMaxThreads() to set the memory consumption as well.  If you use
+SetResources(), there is no need to use SetMaxThreads().
+
+Generally speaking, the test program first shows some information
+about how it was compiled.  Then it shows some ongoing timing
+information which can be useful to see that the program hasn't
+frozen in a long run.  Then it shows some timing information
+including an average per hand.
+
+The program compares results against expected values.  If something
+isn't right, you will see it.  If only specific hands fails, then
+we are surprised -- please report it to us.
+
+
+ddd
+---
+This program was written by Flip Cronje, and we have modified it
+minimally to support a multi-threaded DLL.  However, it doesn't
+use the full capabilities of DDS, as it was written at a time when
+functions such as CalcAllTables and SolveAllBoards were not yet
+available.  Therefore it is rather slow, but it does have a nice
+hand generator built in.  It has not been updated since v2.8.4.
+
+
+examples
+--------
+The previous tests are intended for testing, not for teaching
+anybody how to interface with the DDS library.
+
+Here we show some minimal examples of using various DDS functions.
+These are short programs with only the minimum needed to get going.
+You can build on these for your own purposes.
+

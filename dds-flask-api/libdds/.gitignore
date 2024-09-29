@@ -1,0 +1,9 @@
+!.gitignore
+
+.build*/
+build*/
+
+*.swp
+*.bak
+*~
+
