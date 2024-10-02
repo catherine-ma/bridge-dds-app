@@ -21,14 +21,18 @@ app.get("/sessions", async (req: Request, res: Response) => {
 app.post("/sessions/create", async (req: Request, res: Response) => {
     const { name } = req.body;
     try {
+        const { rows: dealRows } = await db.query(
+            'INSERT INTO deals (id) values (gen_random_uuid()) RETURNING *',
+        );
         const { rows } = await db.query(
             'INSERT INTO sessions (name, id, deals, scores, last_active, status) VALUES ($1, gen_random_uuid(), $2, $3, NOW(), $4) RETURNING *',
-            [name, [], [], SessionStatus.InProgress]
+            [name, [dealRows[0].id], [], SessionStatus.InProgress],
         );
         return res.status(201).json({
             name: rows[0].name,
             id: rows[0].id,
             last_active: rows[0].last_active,
+            status: rows[0].status,
             num_deals: rows[0].deals.length,
         });
     } catch (error) {
@@ -37,45 +41,34 @@ app.post("/sessions/create", async (req: Request, res: Response) => {
     }
 });
 
-app.post("/cards", (req: Request, res: Response) => {
-    const player = req.query.player as string;
-    console.log('player', player);
-    let ocrOutput;
-    if (player === 'Dealer') {
-        ocrOutput = {
-            spades: ["K", "5"],
-            hearts: ["A", "J", "10", "4"],
-            clubs: ["A", "4", "2"],
-            diamonds: ["A", "J", "9", "2"],
-        };
-    } else if (player === 'Dummy') {
-        ocrOutput = {
-            spades: ["A", "Q", "9", "8", "6", "4", "3"],
-            hearts: ["3"],
-            clubs: ["J", "6", "3"],
-            diamonds: ["7", "6"],
-        };
-    } else if (player === 'Opponent1') {
-        ocrOutput = {
-            spades: [],
-            hearts: ["K", "Q", "9", "7", "6"],
-            clubs: ["K", "10", "8", "7"],
-            diamonds: ["10", "8", "4", "3"],
-        };
-    } else { // player === 'Opponent2'
-        ocrOutput = {
-            spades: ["J", "10", "7", "2"],
-            hearts: ["8", "5", "2"],
-            clubs: ["Q", "9", "5"],
-            diamonds: ["K", "Q", "5"],
-        };
+app.get("/session/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+        const { rows } = await db.query(
+            'SELECT name, array_length(deals, 1) as deal_number FROM sessions WHERE id = $1',
+            [id],
+        );
+        return res.status(201).json({
+            name: rows[0].name,
+            deal_number: rows[0].deal_number,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-
-    res.send(ocrOutput);
 });
 
-app.get("/dds", (req: Request, res: Response) => {
-    res.send("Karaoke is fun!");
+app.post("/cards", async (req: Request, res: Response) => {
+    return res.status(201).json({
+        hand: ["2C", "3C", "4C", "5C", "2D", "3D", "4D", "5D", "2H", "3H", "4H", "KS", "AS"],
+    });
+});
+
+app.post("/deal/:id", async (req: Request, res: Response) => {
+    // Save the deal in DB
+    // Call DDS
+    // Save the score
+    // Update the status of the deal (need to add this back in)
 });
 
 app.listen(port, () => {

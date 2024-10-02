@@ -1,0 +1,61 @@
+.cardImageUpload {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    margin-left: 20px;
+}
+
+.fileInput {
+    display: block;
+    margin: 10px 0;
+}
+
+.uploadButton {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.uploadButton:disabled {
+    background-color: #ccc; /* Grey */
+    cursor: not-allowed;
+}
+
+.editingSection {
+    margin-top: 10px;
+}
+
+.editingInput {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.doneButton {
+    background-color: #2196F3; /* Blue */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.doneButton:hover {
+    background-color: #1976D2; /* Darker blue */
+}
+
+.uploadedText {
+    margin-left: 20px;
+}

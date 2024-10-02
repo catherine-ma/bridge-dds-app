@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import CreateSessionModal from '../components/CreateSessionModal';
-import styles from './styles/Sessions.module.css';
-import { SessionStatus } from '../types';
+import CreateSessionModal from '../../components/CreateSessionModal';
+import styles from '../../styles/Sessions.module.css';
+import { SessionStatus } from '../../types';
 
 interface Session {
     name: string;
@@ -24,6 +24,10 @@ const timeAgo = (date: string) => {
 
     return `${days} d ${hours} h ${minutes} m ago`;
 };
+
+const parseStatus = (status: SessionStatus) => {
+    return status.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+}
 
 const Sessions: React.FC = () => {
     const [sessions, setSessions] = useState<Session[]>([]);
@@ -65,24 +69,26 @@ const Sessions: React.FC = () => {
                 <button className={styles.createSessionButton} onClick={() => setIsModalOpen(true)}>Create New Session</button>
                 <ul>
                     {sessions.map(session => (
-                        <div key={session.id} className={styles.sessionCard}>
-                            <div className={styles.sessionInfo}>
-                                <div className={styles.sessionHeader}>
-                                    <Link href={`/sessions/${session.id}`}>
-                                        <h3>{session.name}</h3>
-                                    </Link>
-                                    <span className={`${styles.pill} ${session.status === SessionStatus.InProgress ? styles.statusInProgress : styles.statusEnded}`}>
-                                        {session.status.charAt(0).toUpperCase() + session.status.slice(1)} {/* Capitalize status */}
-                                    </span>
-                                    <span className={styles.pill}>
-                                        Last active: {timeAgo(session.last_active)}
-                                    </span>
-                                </div>
-                                <div className={styles.sessionDseals}>
-                                    {session.num_deals} Deals
+                        <Link key={session.id} href={`/sessions/${session.id}`} passHref>
+                            <div className={styles.sessionCard}>
+                                <div className={styles.sessionInfo}>
+                                    <div className={styles.sessionHeader}>
+                                        <Link href={`/sessions/${session.id}`}>
+                                            <h3>{session.name}</h3>
+                                        </Link>
+                                        <span className={`${styles.pill} ${session.status === SessionStatus.InProgress ? styles.statusInProgress : styles.statusEnded}`}>
+                                            {parseStatus(session.status)}
+                                        </span>
+                                        <span className={styles.pill}>
+                                            Last active {timeAgo(session.last_active)}
+                                        </span>
+                                    </div>
+                                    <div className={styles.sessionDseals}>
+                                        {session.num_deals} Deals
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </ul>
                 <CreateSessionModal
